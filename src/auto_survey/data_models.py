@@ -1,6 +1,6 @@
 """Data models used in the application."""
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Paper(BaseModel):
@@ -260,5 +260,5 @@ class LiteLLMConfig(BaseModel):
     model: str
     api_base: str | None = None
     api_key: str | None = None
-    num_retries: int = 3
-    timeout_seconds: int = 30
+    num_retries: int = Field(default=3, ge=0)
+    timeout_seconds: int = Field(default=30, ge=1)

@@ -53,6 +53,7 @@ def get_llm_completion(
             response_format=response_format,
             timeout=litellm_config.timeout_seconds,
             num_retries=litellm_config.num_retries,
+            retry_strategy="exponential_backoff_retry",
             **{
                 k: v
                 for k, v in litellm_config.model_dump().items()
@@ -66,6 +67,7 @@ def get_llm_completion(
         return completion
     except (APIConnectionError, InternalServerError) as e:
         logger.error(
-            f"LLM API call failed after {litellm_config.num_retries} retries: {e}"
+            f"LLM API call failed after {litellm_config.num_retries + 1} total "
+            f"attempts: {e}"
         )
         raise
