@@ -4,6 +4,7 @@ import logging
 import typing as t
 
 import litellm
+from litellm.exceptions import APIConnectionError, InternalServerError
 from litellm.types.utils import ModelResponse
 from pydantic import BaseModel
 
@@ -37,16 +38,36 @@ def get_llm_completion(
 
     Returns:
         The completion from the LLM.
+
+    Raises:
+        APIConnectionError:
+            If the API connection fails after all retry attempts.
+        InternalServerError:
+            If the API server returns an error after all retry attempts.
     """
-    response = litellm.completion(
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        response_format=response_format,
-        **litellm_config.model_dump(),
-    )
-    assert isinstance(response, ModelResponse)
-    choice = response.choices[0]
-    assert isinstance(choice, litellm.Choices)
-    completion = choice.message.content or ""
-    return completion
+    try:
+        response = litellm.completion(
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            timeout=litellm_config.timeout_seconds,
+            num_retries=litellm_config.num_retries,
+            retry_strategy="exponential_backoff_retry",
+            **{
+                k: v
+                for k, v in litellm_config.model_dump().items()
+                if k not in ["num_retries", "timeout_seconds"]
+            },
+        )
+        assert isinstance(response, ModelResponse)
+        choice = response.choices[0]
+        assert isinstance(choice, litellm.Choices)
+        completion = choice.message.content or ""
+        return completion
+    except (APIConnectionError, InternalServerError) as e:
+        logger.error(
+            f"LLM API call failed after {litellm_config.num_retries + 1} total "
+            f"attempts: {e}"
+        )
+        raise

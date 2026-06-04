@@ -1,6 +1,6 @@
 """Data models used in the application."""
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Paper(BaseModel):
@@ -251,8 +251,14 @@ class LiteLLMConfig(BaseModel):
         api_key (optional):
             The environment variable name that contains the API key for the model. Can
             be None if not needed. Defaults to None.
+        num_retries (optional):
+            Number of retry attempts for transient connection errors. Defaults to 3.
+        timeout_seconds (optional):
+            Timeout in seconds for each API request. Defaults to 30.
     """
 
     model: str
     api_base: str | None = None
     api_key: str | None = None
+    num_retries: int = Field(default=3, ge=0)
+    timeout_seconds: int = Field(default=30, ge=1)
