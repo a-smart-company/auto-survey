@@ -38,13 +38,29 @@ def get_llm_completion(
     Returns:
         The completion from the LLM.
     """
-    response = litellm.completion(
-        messages=messages,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        response_format=response_format,
-        **litellm_config.model_dump(),
-    )
+    config_dict = litellm_config.model_dump()
+    num_retries = config_dict.pop("num_retries", 3)
+    timeout = config_dict.pop("timeout_seconds", 30)
+
+    for attempt in range(num_retries):
+        try:
+            response = litellm.completion(
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                response_format=response_format,
+                timeout=timeout,
+                **config_dict,
+            )
+            break
+        except Exception as e:
+            if attempt < num_retries - 1:
+                logger.warning(
+                    f"LLM API call failed (attempt {attempt + 1}/{num_retries}): {e}"
+                )
+            else:
+                logger.error(f"LLM API call failed after {num_retries} attempts: {e}")
+                raise
     assert isinstance(response, ModelResponse)
     choice = response.choices[0]
     assert isinstance(choice, litellm.Choices)

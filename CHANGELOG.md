@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+- LLM connection errors now handled with retry logic using exponential backoff.
+  Added `num_retries` and `timeout_seconds` fields to `LiteLLMConfig` to configure
+  retry behaviour for transient connection errors.
+
 ## [v0.2.4] - 2026-04-09
 
 ### Changed
