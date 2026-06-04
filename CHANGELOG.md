@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v0.2.5] - 2026-06-04
+
 ### Fixed
 
 - Added retry logic with exponential backoff and timeout handling to LLM API calls to
