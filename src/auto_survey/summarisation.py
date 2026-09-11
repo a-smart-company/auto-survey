@@ -114,7 +114,6 @@ def summarise_paper(
             dict(role="system", content=system_prompt),
             dict(role="user", content=user_prompt),
         ],
-        temperature=0.0,
         max_tokens=1024,
         response_format=Summary,
         litellm_config=litellm_config,

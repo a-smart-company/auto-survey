@@ -109,7 +109,8 @@ uvx auto-survey "<your topic here>" --model "claude-sonnet-4-5"
 
 `--model` uses the same model for summarisation and writing. To choose different models,
 use `--summarisation-model` and `--writing-model` instead. `--model` cannot be combined
-with either role-specific option.
+with either role-specific option. The `--temperature` option controls the sampling
+temperature for all model calls and defaults to `1.0`.
 
 Some providers require you to prefix the model ID with the provider name. For instance,
 to use the Grok-3-mini model from xAI, you need to use

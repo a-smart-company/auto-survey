@@ -15,7 +15,6 @@ logger = logging.getLogger("auto_survey")
 
 def get_llm_completion(
     messages: list[dict[str, str]],
-    temperature: float,
     max_tokens: int,
     response_format: t.Type[BaseModel] | None,
     litellm_config: LiteLLMConfig,
@@ -27,8 +26,6 @@ def get_llm_completion(
             The messages to use for the completion. Each message is a dict with keys
             "role" and "content". The "role" can be "system", "user", or "assistant".
             The "content" is the content of the message.
-        temperature:
-            The temperature to use for the completion.
         max_tokens:
             The maximum number of tokens to generate.
         response_format:
@@ -48,7 +45,7 @@ def get_llm_completion(
     try:
         response = litellm.completion(
             messages=messages,
-            temperature=temperature,
+            temperature=litellm_config.temperature,
             max_tokens=max_tokens,
             response_format=response_format,
             timeout=litellm_config.timeout_seconds,
@@ -57,7 +54,7 @@ def get_llm_completion(
             **{
                 k: v
                 for k, v in litellm_config.model_dump().items()
-                if k not in ["num_retries", "timeout_seconds"]
+                if k not in ["temperature", "num_retries", "timeout_seconds"]
             },
         )
         assert isinstance(response, ModelResponse)

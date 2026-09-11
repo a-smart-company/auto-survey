@@ -79,7 +79,6 @@ def write_literature_survey(
             dict(role="system", content=system_prompt),
             dict(role="user", content=user_prompt),
         ],
-        temperature=0.5,
         max_tokens=10_000,
         litellm_config=litellm_config,
         response_format=None,

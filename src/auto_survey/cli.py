@@ -44,6 +44,13 @@ logger = logging.getLogger("auto_survey")
     help="The model ID to use for the writing of the literature survey.",
 )
 @click.option(
+    "--temperature",
+    type=click.FloatRange(min=0.0, max=2.0),
+    default=1.0,
+    show_default=True,
+    help="The sampling temperature to use for all model calls.",
+)
+@click.option(
     "--api-base",
     type=str,
     default=None,
@@ -99,6 +106,7 @@ def main(
     model: str | None,
     summarisation_model: str,
     writing_model: str,
+    temperature: float,
     api_base: str | None,
     api_key_env_var: str | None,
     num_papers: int,
@@ -138,11 +146,13 @@ def main(
         model=summarisation_model,
         api_base=api_base,
         api_key=os.getenv(api_key_env_var) if api_key_env_var else None,
+        temperature=temperature,
     )
     writing_config = LiteLLMConfig(
         model=writing_model,
         api_base=api_base,
         api_key=os.getenv(api_key_env_var) if api_key_env_var else None,
+        temperature=temperature,
     )
 
     # Show ASCII logo

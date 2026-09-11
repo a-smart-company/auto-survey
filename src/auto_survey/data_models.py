@@ -251,6 +251,8 @@ class LiteLLMConfig(BaseModel):
         api_key (optional):
             The environment variable name that contains the API key for the model. Can
             be None if not needed. Defaults to None.
+        temperature (optional):
+            The sampling temperature for the model. Defaults to 1.0.
         num_retries (optional):
             Number of retry attempts for transient connection errors. Defaults to 3.
         timeout_seconds (optional):
@@ -260,5 +262,6 @@ class LiteLLMConfig(BaseModel):
     model: str
     api_base: str | None = None
     api_key: str | None = None
+    temperature: float = Field(default=1.0, ge=0.0, le=2.0)
     num_retries: int = Field(default=3, ge=0)
     timeout_seconds: int = Field(default=30, ge=1)

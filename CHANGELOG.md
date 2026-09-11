@@ -11,6 +11,7 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 - Restored `--model` as a shortcut for setting both the summarisation and writing models.
   It cannot be combined with either role-specific model option.
+- Added a global `--temperature` option for model calls, defaulting to `1.0`.
 
 ### Fixed
 

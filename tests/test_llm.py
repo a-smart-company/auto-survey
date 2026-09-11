@@ -23,7 +23,6 @@ def test_get_llm_completion_forwards_openai_compatible_endpoint(
 
     completion = get_llm_completion(
         messages=[{"role": "user", "content": "Hello"}],
-        temperature=0.0,
         max_tokens=100,
         response_format=None,
         litellm_config=LiteLLMConfig(
@@ -36,7 +35,7 @@ def test_get_llm_completion_forwards_openai_compatible_endpoint(
     assert completion == "A completion"
     completion_mock.assert_called_once_with(
         messages=[{"role": "user", "content": "Hello"}],
-        temperature=0.0,
+        temperature=1.0,
         max_tokens=100,
         response_format=None,
         timeout=30,
