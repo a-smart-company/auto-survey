@@ -205,7 +205,7 @@ wheels = [
 
 [[package]]
 name = "auto-survey"
-version = "0.3.1"
+version = "0.3.1.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
