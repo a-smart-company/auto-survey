@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 import click
+from click.core import ParameterSource
 from termcolor import colored
 from tqdm.auto import tqdm
 
@@ -22,6 +23,12 @@ logger = logging.getLogger("auto_survey")
 
 @click.command()
 @click.argument("topic", type=str, required=True)
+@click.option(
+    "--model",
+    type=str,
+    default=None,
+    help="The model ID to use for both summarisation and writing.",
+)
 @click.option(
     "--summarisation-model",
     type=str,
@@ -85,8 +92,11 @@ logger = logging.getLogger("auto_survey")
     help="Whether to show verbose output, including debug information from "
     "LiteLLM and other libraries.",
 )
+@click.pass_context
 def main(
+    ctx: click.Context,
     topic: str,
+    model: str | None,
     summarisation_model: str,
     writing_model: str,
     api_base: str | None,
@@ -98,6 +108,21 @@ def main(
     verbose: bool,
 ) -> None:
     """Conduct a literature survey based on the provided topic."""
+    if model is not None:
+        conflicting_options = [
+            option
+            for parameter, option in [
+                ("summarisation_model", "--summarisation-model"),
+                ("writing_model", "--writing-model"),
+            ]
+            if ctx.get_parameter_source(parameter) is ParameterSource.COMMANDLINE
+        ]
+        if conflicting_options:
+            options = " and ".join(conflicting_options)
+            raise click.UsageError(f"--model cannot be combined with {options}.")
+        summarisation_model = model
+        writing_model = model
+
     suppress_logging()
     if verbose:
         logger.setLevel(logging.DEBUG)

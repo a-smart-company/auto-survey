@@ -7,6 +7,11 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- Restored `--model` as a shortcut for setting both the summarisation and writing models.
+  It cannot be combined with either role-specific model option.
+
 ### Fixed
 
 - Corrected the custom inference API instructions and documented how to use

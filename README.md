@@ -107,6 +107,10 @@ model you want to use. For example, to use Claude Sonnet 4.5 from Anthropic, use
 uvx auto-survey "<your topic here>" --model "claude-sonnet-4-5"
 ```
 
+`--model` uses the same model for summarisation and writing. To choose different models,
+use `--summarisation-model` and `--writing-model` instead. `--model` cannot be combined
+with either role-specific option.
+
 Some providers require you to prefix the model ID with the provider name. For instance,
 to use the Grok-3-mini model from xAI, you need to use
 
@@ -133,8 +137,7 @@ Then pass the name of that environment variable with `--api-key-env-var`:
 
 ```bash
 uvx auto-survey "<your topic here>" \
-  --summarisation-model "openai/<model-id>" \
-  --writing-model "openai/<model-id>" \
+  --model "openai/<model-id>" \
   --api-base "https://example.com/v1" \
   --api-key-env-var "CUSTOM_LLM_API_KEY"
 ```
