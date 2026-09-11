@@ -128,15 +128,23 @@ environment variables to set.
 ### Custom Inference API
 
 You can use any OpenAI-compatible endpoint by setting `--api-base` to its base URL and
-prefixing each model ID with `openai/`. Store the endpoint's API key in `.env`:
+prefixing each model ID with `openai/`:
+
+```bash
+uvx auto-survey "<your topic here>" \
+  --model "openai/<model-id>" \
+  --api-base "http://127.0.0.1:18080/v1"
+```
+
+When no API key is provided, Auto Survey sends a non-secret dummy key for compatibility
+with OpenAI clients. If a custom endpoint rejects optional parameters such as an output
+token limit or temperature, Auto Survey automatically retries without them for that
+model. If the endpoint requires authentication, store its API key in `.env` and pass the
+environment variable name with `--api-key-env-var`:
 
 ```bash
 CUSTOM_LLM_API_KEY="<your key here>"
-```
 
-Then pass the name of that environment variable with `--api-key-env-var`:
-
-```bash
 uvx auto-survey "<your topic here>" \
   --model "openai/<model-id>" \
   --api-base "https://example.com/v1" \

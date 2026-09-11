@@ -4,7 +4,7 @@ import logging
 import typing as t
 
 import litellm
-from litellm.exceptions import APIConnectionError, InternalServerError
+from litellm.exceptions import APIConnectionError, BadRequestError, InternalServerError
 from litellm.types.utils import ModelResponse
 from pydantic import BaseModel
 
@@ -39,14 +39,21 @@ def get_llm_completion(
     Raises:
         APIConnectionError:
             If the API connection fails after all retry attempts.
+        BadRequestError:
+            If the API server rejects the request for a reason other than an unsupported
+            output token limit.
         InternalServerError:
             If the API server returns an error after all retry attempts.
     """
     try:
         response = litellm.completion(
             messages=messages,
-            temperature=litellm_config.temperature,
-            max_tokens=max_tokens,
+            temperature=(
+                litellm_config.temperature
+                if litellm_config.temperature_supported
+                else None
+            ),
+            max_tokens=(max_tokens if litellm_config.max_tokens_supported else None),
             response_format=response_format,
             timeout=litellm_config.timeout_seconds,
             num_retries=litellm_config.num_retries,
@@ -62,9 +69,48 @@ def get_llm_completion(
         assert isinstance(choice, litellm.Choices)
         completion = choice.message.content or ""
         return completion
+    except BadRequestError as e:
+        disabled_parameters = _disable_unsupported_parameters(
+            error=e, litellm_config=litellm_config
+        )
+        if not disabled_parameters:
+            raise
+        parameters = ", ".join(disabled_parameters)
+        pronoun = "it" if len(disabled_parameters) == 1 else "them"
+        logger.warning(
+            f"The model endpoint rejected {parameters}; retrying without {pronoun}."
+        )
+        return get_llm_completion(
+            messages=messages,
+            max_tokens=max_tokens,
+            response_format=response_format,
+            litellm_config=litellm_config,
+        )
     except (APIConnectionError, InternalServerError) as e:
         logger.error(
             f"LLM API call failed after {litellm_config.num_retries + 1} total "
             f"attempts: {e}"
         )
         raise
+
+
+def _disable_unsupported_parameters(
+    error: BadRequestError, litellm_config: LiteLLMConfig
+) -> list[str]:
+    """Disable optional parameters that an API error explicitly rejects."""
+    message = str(error).lower()
+    if not (
+        "does not support parameters" in message or "unsupported parameter" in message
+    ):
+        return []
+
+    disabled_parameters: list[str] = []
+    if litellm_config.max_tokens_supported and any(
+        parameter in message for parameter in ["max_tokens", "max_completion_tokens"]
+    ):
+        litellm_config.max_tokens_supported = False
+        disabled_parameters.append("output token limits")
+    if litellm_config.temperature_supported and "temperature" in message:
+        litellm_config.temperature_supported = False
+        disabled_parameters.append("temperature")
+    return disabled_parameters

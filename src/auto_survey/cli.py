@@ -20,6 +20,8 @@ from auto_survey.writing import write_literature_survey
 
 logger = logging.getLogger("auto_survey")
 
+DUMMY_API_KEY = "dummy"
+
 
 @click.command()
 @click.argument("topic", type=str, required=True)
@@ -142,18 +144,25 @@ def main(
     pdf_path = output_dir / f"{topic_filename}_survey.pdf"
 
     # Set up LiteLLM configuration to use for all LLM calls
+    api_key = os.getenv(api_key_env_var) if api_key_env_var else None
+    if api_base is not None and not api_key:
+        api_key = DUMMY_API_KEY
+
     summarisation_config = LiteLLMConfig(
         model=summarisation_model,
         api_base=api_base,
-        api_key=os.getenv(api_key_env_var) if api_key_env_var else None,
+        api_key=api_key,
         temperature=temperature,
     )
-    writing_config = LiteLLMConfig(
-        model=writing_model,
-        api_base=api_base,
-        api_key=os.getenv(api_key_env_var) if api_key_env_var else None,
-        temperature=temperature,
-    )
+    if writing_model == summarisation_model:
+        writing_config = summarisation_config
+    else:
+        writing_config = LiteLLMConfig(
+            model=writing_model,
+            api_base=api_base,
+            api_key=api_key,
+            temperature=temperature,
+        )
 
     # Show ASCII logo
     logger.info(ASCII_LOGO)

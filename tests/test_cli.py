@@ -41,6 +41,62 @@ def test_model_sets_both_models(
     assert writing_config.temperature == 0.7
 
 
+def test_api_base_uses_dummy_key(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Test that unauthenticated custom endpoints receive a dummy API key."""
+    get_all_papers_mock = Mock(return_value=[])
+    write_literature_survey_mock = Mock(return_value="# Survey")
+    monkeypatch.setattr(cli, "get_all_papers", get_all_papers_mock)
+    monkeypatch.setattr(cli, "write_literature_survey", write_literature_survey_mock)
+    monkeypatch.setattr(cli, "convert_markdown_file_to_pdf", Mock(return_value=True))
+
+    result = CliRunner().invoke(
+        cli.main,
+        [
+            "test topic",
+            "--api-base",
+            "http://127.0.0.1:18080/v1",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    summarisation_config = get_all_papers_mock.call_args.kwargs["litellm_config"]
+    writing_config = write_literature_survey_mock.call_args.kwargs["litellm_config"]
+    assert summarisation_config.api_key == "dummy"
+    assert writing_config.api_key == "dummy"
+
+
+def test_api_base_preserves_user_key(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Test that a user-provided API key takes precedence over the dummy key."""
+    get_all_papers_mock = Mock(return_value=[])
+    monkeypatch.setattr(cli, "get_all_papers", get_all_papers_mock)
+    monkeypatch.setattr(cli, "write_literature_survey", Mock(return_value="# Survey"))
+    monkeypatch.setattr(cli, "convert_markdown_file_to_pdf", Mock(return_value=True))
+    monkeypatch.setenv("CUSTOM_LLM_API_KEY", "secret")
+
+    result = CliRunner().invoke(
+        cli.main,
+        [
+            "test topic",
+            "--api-base",
+            "https://example.com/v1",
+            "--api-key-env-var",
+            "CUSTOM_LLM_API_KEY",
+            "--output-dir",
+            str(tmp_path),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    config = get_all_papers_mock.call_args.kwargs["litellm_config"]
+    assert config.api_key == "secret"
+
+
 def test_temperature_defaults_to_one(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -55,6 +111,7 @@ def test_temperature_defaults_to_one(
     assert result.exit_code == 0, result.output
     config = get_all_papers_mock.call_args.kwargs["litellm_config"]
     assert config.temperature == 1.0
+    assert config.api_key is None
 
 
 def test_temperature_rejects_out_of_range_value() -> None:

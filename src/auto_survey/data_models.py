@@ -253,6 +253,12 @@ class LiteLLMConfig(BaseModel):
             be None if not needed. Defaults to None.
         temperature (optional):
             The sampling temperature for the model. Defaults to 1.0.
+        temperature_supported (optional):
+            Whether the model endpoint supports sampling temperature. This is disabled
+            automatically if the endpoint rejects it. Defaults to True.
+        max_tokens_supported (optional):
+            Whether the model endpoint supports output token limits. This is disabled
+            automatically if the endpoint rejects them. Defaults to True.
         num_retries (optional):
             Number of retry attempts for transient connection errors. Defaults to 3.
         timeout_seconds (optional):
@@ -263,5 +269,7 @@ class LiteLLMConfig(BaseModel):
     api_base: str | None = None
     api_key: str | None = None
     temperature: float = Field(default=1.0, ge=0.0, le=2.0)
+    temperature_supported: bool = Field(default=True, exclude=True)
+    max_tokens_supported: bool = Field(default=True, exclude=True)
     num_retries: int = Field(default=3, ge=0)
     timeout_seconds: int = Field(default=30, ge=1)

@@ -15,6 +15,10 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- Use a dummy API key for custom endpoints when the user does not provide one, allowing
+  unauthenticated OpenAI-compatible endpoints to work with LiteLLM.
+- Retry model calls without optional parameters when an endpoint explicitly rejects
+  them, including `temperature`, `max_tokens`, and `max_completion_tokens`.
 - Corrected the custom inference API instructions and documented how to use
   OpenAI-compatible endpoints with `--api-base`.
 
