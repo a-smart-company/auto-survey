@@ -122,18 +122,24 @@ environment variables to set.
 
 ### Custom Inference API
 
-You can also run the package with a custom inference API. In this case you need to set
-the `--base-url` argument with the URL to the inference API, and also set the
-`--api-key-env-var` argument with the name of the environment variable that contains the
-API key for the inference API. This variable must again be set in the `.env` file:
+You can use any OpenAI-compatible endpoint by setting `--api-base` to its base URL and
+prefixing each model ID with `openai/`. Store the endpoint's API key in `.env`:
 
 ```bash
-<value-of-api-key-env-var>="<your key here>"
+CUSTOM_LLM_API_KEY="<your key here>"
 ```
 
-Lastly, when using custom inference APIs, you need to use a custom prefix as well,
-dependending on what kind of inference server you're using. If it is running with vLLM,
-you need to use the `hosted_vllm/` prefix, for instance, and Ollama models use the
-`ollama_chat/` prefix. See the [LiteLLM provider
-documentation](https://docs.litellm.ai/docs/providers) for more information on which
-prefixes to use.
+Then pass the name of that environment variable with `--api-key-env-var`:
+
+```bash
+uvx auto-survey "<your topic here>" \
+  --summarisation-model "openai/<model-id>" \
+  --writing-model "openai/<model-id>" \
+  --api-base "https://example.com/v1" \
+  --api-key-env-var "CUSTOM_LLM_API_KEY"
+```
+
+Other custom inference servers may require a different LiteLLM provider prefix. For
+example, vLLM uses `hosted_vllm/` and Ollama uses `ollama_chat/`. See the [LiteLLM
+provider documentation](https://docs.litellm.ai/docs/providers) for the available
+prefixes.

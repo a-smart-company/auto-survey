@@ -7,6 +7,11 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Corrected the custom inference API instructions and documented how to use
+  OpenAI-compatible endpoints with `--api-base`.
+
 ## [v0.2.5] - 2026-06-04
 
 ### Fixed
