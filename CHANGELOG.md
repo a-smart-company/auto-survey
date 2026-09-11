@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v0.3.0] - 2026-09-11
+
 ### Added
 
 - Restored `--model` as a shortcut for setting both the summarisation and writing models.
