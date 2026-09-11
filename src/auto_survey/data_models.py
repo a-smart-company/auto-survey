@@ -262,7 +262,7 @@ class LiteLLMConfig(BaseModel):
         num_retries (optional):
             Number of retry attempts for transient connection errors. Defaults to 3.
         timeout_seconds (optional):
-            Timeout in seconds for each API request. Defaults to 30.
+            Timeout in seconds for each API request. Defaults to 120.
     """
 
     model: str
@@ -272,4 +272,4 @@ class LiteLLMConfig(BaseModel):
     temperature_supported: bool = Field(default=True, exclude=True)
     max_tokens_supported: bool = Field(default=True, exclude=True)
     num_retries: int = Field(default=3, ge=0)
-    timeout_seconds: int = Field(default=30, ge=1)
+    timeout_seconds: int = Field(default=120, ge=1)

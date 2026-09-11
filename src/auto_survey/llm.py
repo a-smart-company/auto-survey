@@ -4,7 +4,12 @@ import logging
 import typing as t
 
 import litellm
-from litellm.exceptions import APIConnectionError, BadRequestError, InternalServerError
+from litellm.exceptions import (
+    APIConnectionError,
+    BadRequestError,
+    InternalServerError,
+    Timeout,
+)
 from litellm.types.utils import ModelResponse
 from pydantic import BaseModel
 
@@ -44,6 +49,8 @@ def get_llm_completion(
             output token limit.
         InternalServerError:
             If the API server returns an error after all retry attempts.
+        Timeout:
+            If the API request times out after all retry attempts.
     """
     try:
         response = litellm.completion(
@@ -86,7 +93,7 @@ def get_llm_completion(
             response_format=response_format,
             litellm_config=litellm_config,
         )
-    except (APIConnectionError, InternalServerError) as e:
+    except (APIConnectionError, InternalServerError, Timeout) as e:
         logger.error(
             f"LLM API call failed after {litellm_config.num_retries + 1} total "
             f"attempts: {e}"

@@ -53,6 +53,20 @@ DUMMY_API_KEY = "dummy"
     help="The sampling temperature to use for all model calls.",
 )
 @click.option(
+    "--num-retries",
+    type=click.IntRange(min=0),
+    default=3,
+    show_default=True,
+    help="The number of retries for transient LLM API failures.",
+)
+@click.option(
+    "--timeout-seconds",
+    type=click.IntRange(min=1),
+    default=120,
+    show_default=True,
+    help="The timeout in seconds for each LLM API request.",
+)
+@click.option(
     "--api-base",
     type=str,
     default=None,
@@ -109,6 +123,8 @@ def main(
     summarisation_model: str,
     writing_model: str,
     temperature: float,
+    num_retries: int,
+    timeout_seconds: int,
     api_base: str | None,
     api_key_env_var: str | None,
     num_papers: int,
@@ -153,6 +169,8 @@ def main(
         api_base=api_base,
         api_key=api_key,
         temperature=temperature,
+        num_retries=num_retries,
+        timeout_seconds=timeout_seconds,
     )
     if writing_model == summarisation_model:
         writing_config = summarisation_config
@@ -162,6 +180,8 @@ def main(
             api_base=api_base,
             api_key=api_key,
             temperature=temperature,
+            num_retries=num_retries,
+            timeout_seconds=timeout_seconds,
         )
 
     # Show ASCII logo

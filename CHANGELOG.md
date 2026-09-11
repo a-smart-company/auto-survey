@@ -7,6 +7,13 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Increased the default LLM request timeout from 30 to 120 seconds and exposed
+  `--timeout-seconds` and `--num-retries` CLI options for slow providers and long
+  survey-writing requests.
+- Included LiteLLM timeout errors in exhausted-retry failure logging.
+
 ## [v0.3.0] - 2026-09-11
 
 ### Added

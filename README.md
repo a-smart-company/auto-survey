@@ -110,7 +110,14 @@ uvx auto-survey "<your topic here>" --model "claude-sonnet-4-5"
 `--model` uses the same model for summarisation and writing. To choose different models,
 use `--summarisation-model` and `--writing-model` instead. `--model` cannot be combined
 with either role-specific option. The `--temperature` option controls the sampling
-temperature for all model calls and defaults to `1.0`.
+temperature for all model calls and defaults to `1.0`. LLM requests time out after 120
+seconds by default and retry transient failures three times. For slow providers or long
+survey-writing requests, adjust these limits with `--timeout-seconds` and
+`--num-retries`:
+
+```bash
+uvx auto-survey "<your topic here>" --timeout-seconds 300 --num-retries 5
+```
 
 Some providers require you to prefix the model ID with the provider name. For instance,
 to use the Grok-3-mini model from xAI, you need to use

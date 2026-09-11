@@ -1,10 +1,11 @@
 """Tests for the `llm` module."""
 
+import logging
 from unittest.mock import Mock
 
 import litellm
 import pytest
-from litellm.exceptions import BadRequestError
+from litellm.exceptions import BadRequestError, Timeout
 from litellm.types.utils import ModelResponse
 
 from auto_survey.data_models import LiteLLMConfig
@@ -39,7 +40,7 @@ def test_get_llm_completion_forwards_openai_compatible_endpoint(
         temperature=1.0,
         max_tokens=100,
         response_format=None,
-        timeout=30,
+        timeout=120,
         num_retries=3,
         retry_strategy="exponential_backoff_retry",
         model="openai/custom-model",
@@ -103,3 +104,25 @@ def test_get_llm_completion_retries_without_unsupported_parameters(
     assert completion_mock.call_args_list[2].kwargs["temperature"] is None
     assert completion_mock.call_args_list[3].kwargs["max_tokens"] is None
     assert completion_mock.call_args_list[3].kwargs["temperature"] is None
+
+
+def test_get_llm_completion_logs_exhausted_timeout(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    """Test logging a timeout after LiteLLM exhausts its retry attempts."""
+    timeout = Timeout(
+        message="Request timed out.", model="openai/custom-model", llm_provider="openai"
+    )
+    monkeypatch.setattr(litellm, "completion", Mock(side_effect=timeout))
+
+    with pytest.raises(Timeout), caplog.at_level(logging.ERROR):
+        get_llm_completion(
+            messages=[{"role": "user", "content": "Hello"}],
+            max_tokens=100,
+            response_format=None,
+            litellm_config=LiteLLMConfig(
+                model="openai/custom-model", num_retries=5, timeout_seconds=300
+            ),
+        )
+
+    assert "failed after 6 total attempts" in caplog.text

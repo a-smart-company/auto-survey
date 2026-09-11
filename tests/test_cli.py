@@ -27,6 +27,10 @@ def test_model_sets_both_models(
             "openai/custom-model",
             "--temperature",
             "0.7",
+            "--num-retries",
+            "5",
+            "--timeout-seconds",
+            "300",
             "--output-dir",
             str(tmp_path),
         ],
@@ -39,6 +43,10 @@ def test_model_sets_both_models(
     assert writing_config.model == "openai/custom-model"
     assert summarisation_config.temperature == 0.7
     assert writing_config.temperature == 0.7
+    assert summarisation_config.num_retries == 5
+    assert writing_config.num_retries == 5
+    assert summarisation_config.timeout_seconds == 300
+    assert writing_config.timeout_seconds == 300
 
 
 def test_api_base_uses_dummy_key(
@@ -111,6 +119,8 @@ def test_temperature_defaults_to_one(
     assert result.exit_code == 0, result.output
     config = get_all_papers_mock.call_args.kwargs["litellm_config"]
     assert config.temperature == 1.0
+    assert config.num_retries == 3
+    assert config.timeout_seconds == 120
     assert config.api_key is None
 
 
