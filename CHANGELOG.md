@@ -7,6 +7,8 @@ project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [v0.3.1] - 2026-09-11
+
 ### Fixed
 
 - Increased the default LLM request timeout from 30 to 120 seconds and exposed

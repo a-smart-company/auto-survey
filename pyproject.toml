@@ -1,6 +1,6 @@
 [project]
 name = "auto_survey"
-version = "0.3.0.dev"
+version = "0.3.1"
 description = "Automated literature surveys."
 readme = "README.md"
 authors = [
